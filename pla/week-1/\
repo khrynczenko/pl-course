@@ -1,0 +1,8 @@
+fun is_older (lhs: (int * int * int), rhs: (int * int * int)) = 
+    if (#1 lhs) < (#1 rhs)
+    then true
+    else if (#2 lhs) < (#2 rhs)
+    then true
+    else if (#3 lhs) < (#3 rhs)
+    then true
+    else false
