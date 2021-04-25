@@ -1,10 +1,18 @@
 fun is_older (lhs: (int * int * int), rhs: (int * int * int)) = 
-    if lhs = rhs
-    then false
-    else if (#1 lhs) = (#1 rhs)
-    then (if (#2 lhs) = (#2 rhs) then (#3 lhs) < (#3 rhs) else (#2 lhs) < (#2
-    rhs))
-    else (#1 lhs) < (#1 rhs)
+    let
+      val y1 = #1 lhs
+      val m1 = #2 lhs
+      val d1 = #3 lhs
+      val y2 = #1 rhs
+      val m2 = #2 rhs
+      val d2 = #3 rhs
+    in
+      if lhs = rhs
+      then false
+      else if y1 = y2
+      then (if m1 = m2 then d1 < d2 else m1 < m2)
+      else y1 < y2
+    end
 
 fun number_in_month (dates: (int * int * int) list, month: int) = 
     if null dates
@@ -54,19 +62,14 @@ fun date_to_string(date: (int * int * int)) =
     Int.toString((#1 date))
     
 fun number_before_reaching_sum(sum: int, numbers: int list) =
-    let
-    fun helper(sum: int, previous: int, numbers: int list) =
       let
           val next = hd numbers
           val will_be_bigger = (sum - next) <= 0
       in
           if will_be_bigger
-          then previous
-          else helper(sum - next, next, tl numbers)
+          then 0
+          else 1 + number_before_reaching_sum(sum - next, tl numbers)
       end
-    in
-      helper(sum, 0, numbers)
-    end
 
 val month_ranges = [31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365]
 
