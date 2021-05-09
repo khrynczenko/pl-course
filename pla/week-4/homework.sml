@@ -53,22 +53,21 @@ fun longest_string1 words = find_string is_longer words
 fun longest_string2 words = find_string is_longer_or_equal words
 
 (* Okay it seems that task 4 wants me to do what I did in task 3 already but
- * with binary operator that uses tuple argument instead of currying. I could
- * use find_string function again but for the sake of the task lets define
- * longest_string_helper again.*)
+ * with binary operator that uses tuple argument instead of currying. Anyway,
+ * lets define the one more time.*)
 
 (* TASK 4 *)
+fun is_longer_tupled (lhs, rhs) = lhs > rhs (* to be hones I could define uncurry function and use it on the above defined `is_longer` *)
+fun is_longer_or_equal_tupled (lhs, rhs) = lhs >= rhs
 
 fun longest_string_helper binary_op words =
     case words of
         [] => ""
       | words =>
-          foldl (fn (word, acc) => if binary_op (word, acc) then word else acc) "" words
+          foldl (fn (word, acc) => if binary_op (String.size word, String.size acc) then word else acc) "" words
 
-fun uncurry f = (fn (lhs, rhs) => f lhs rhs)
-
-val longest_string3 = longest_string_helper (uncurry is_longer)
-val longest_string4 = longest_string_helper (uncurry is_longer_or_equal)
+val longest_string3 = longest_string_helper is_longer_tupled
+val longest_string4 = longest_string_helper is_longer_or_equal_tupled
 
 (* TASK 5 *)
 
@@ -85,7 +84,12 @@ val rev_string = implode o List.rev o explode
 fun first_answer f elements =
     case elements of
          [] => raise NoAnswer
-       | x::xs => if isSome (f x) then x else first_answer f xs
+       | x::xs => 
+           let
+             val y = f x
+           in
+             if isSome y then valOf y else first_answer f xs
+          end
 
 (* TASK 8 *)
 
@@ -138,7 +142,7 @@ fun check_pat pat =
     val extracted_names = extract_names_from_pattern pat
     val first_name = hd extracted_names
   in
-    List.foldl (fn (name, acc) => if name = first_name andalso acc then true
+    List.foldl (fn (name, acc) => if name <> first_name andalso acc then true
                                   else false) true (tl extracted_names)
   end
 
@@ -163,5 +167,5 @@ fun match (v, pat) =
 
 (* TASK 12 *)
 fun first_match v pats =
-    match (v, (first_answer (fn pat => match (v, pat)) pats)) handle NoAnswer => NONE
+    SOME(first_answer (fn pat => match (v, pat)) pats) handle NoAnswer => NONE
 

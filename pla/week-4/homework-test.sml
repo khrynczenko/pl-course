@@ -60,8 +60,10 @@ val test9c3 = count_some_var ("x", (TupleP [Variable("x"), Wildcard])) = 1
 val test9c4 = count_some_var ("x", (TupleP [Variable("x"), Variable("x")])) = 2
 
 val test101 = check_pat (Variable("x")) = true
-val test102 = check_pat (TupleP [Variable("x"), Variable("x")]) = true
-val test103 = check_pat (TupleP [Variable("x"), Variable("y")]) = false
+val test102 = check_pat (TupleP [Variable("x"), Variable("x")]) = false
+val test103 = check_pat (TupleP [Variable("x"), Variable("y")]) = true
+val test104 = check_pat (TupleP[TupleP[Variable "x",ConstructorP ("wild",Wildcard)],Variable "x"]) = false
+val test105 = check_pat (ConstructorP ("hi",TupleP[Variable "x",ConstructorP ("yo",TupleP[Variable "x",UnitP])])) = false
 
 val test111 = match (Const(1), UnitP) = NONE
 val test112 = match (Const(1), ConstP(1)) = SOME []
@@ -73,6 +75,6 @@ val test115 = match (Constructor("x", Const(1)), ConstructorP("x", Variable("x")
 val test116 = match (Constructor("x", Const(1)), ConstructorP("x", UnitP)) =
   NONE
 
-val test12 = first_match Unit [UnitP] = SOME []
+val test121 = first_match Unit [UnitP] = SOME []
 
 
