@@ -23,6 +23,18 @@
 ;; Problem 1
 
 ;; CHANGE (put your solutions here)
+(define (racketlist->mupllist xs)
+  (cond  [(null? xs)
+          (aunit)]
+         [#t
+          (apair (car xs) (racketlist->mupllist (cdr xs)))]
+         ))
+
+(define (mupllist->racketlist xs)
+  (cond [(aunit? xs)
+         null]
+        [#t
+         (cons (apair-e1 xs) (mupllist->racketlist (apair-e2 xs)))]))
 
 ;; Problem 2
 
@@ -38,7 +50,10 @@
 ;; We will test eval-under-env by calling it directly even though
 ;; "in real life" it would be a helper function of eval-exp.
 (define (eval-under-env e env)
-  (cond [(var? e) 
+  (cond [(int? e) e]
+        [(aunit? e) e]
+        [(apair? e) e]
+        [(var? e) 
          (envlookup env (var-string e))]
         [(add? e) 
          (let ([v1 (eval-under-env (add-e1 e) env)]
@@ -48,8 +63,37 @@
                (int (+ (int-num v1) 
                        (int-num v2)))
                (error "MUPL addition applied to non-number")))]
-        ;; CHANGE add more cases here
-        [#t (error (format "bad MUPL expression: ~v" e))]))
+        [(ifgreater? e)
+         (let ([v1 (eval-under-env (ifgreater-e1 e) env)]
+               [v2 (eval-under-env (ifgreater-e2 e) env)])
+           (if (and (int? v1) (int? v2))
+               (if (> (int-num v1) (int-num v2))
+                   (eval-under-env (ifgreater-e3 e) env)
+                   (eval-under-env (ifgreater-e4 e) env))
+               (error "MUPL ifgreater used with non-number values in comparison")))]
+        [(fun? e)
+         (error "Not implemented.")]
+        [(call? e)
+         (error "Not implemented.")]
+        [(mlet? e)
+         (error "Not implemented.")]
+        [(fst? e)
+         (let ([pr (eval-under-env (fst-e e) env)])
+           (if (apair? pr)
+             (apair-e1 pr)
+             (error "MUPL fst called on a non pair")))]
+        [(snd? e)
+         (let ([pr (eval-under-env (snd-e e) env)])
+           (if (apair? pr)
+             (apair-e2 pr)
+             (error "MUPL fst called on a non pair")))]
+        [(isaunit? e)
+         (let ([v (eval-under-env (isaunit-e e) env)])
+           (if (aunit? v)
+               (int 1)
+               (int 0)))]
+        [#t (error (format "bad MUPL expression: ~v" e))]
+        ))
 
 ;; Do NOT change
 (define (eval-exp e)
