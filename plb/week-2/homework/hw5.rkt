@@ -18,7 +18,10 @@
 (struct isaunit (e) #:transparent) ;; evaluate to 1 if e is unit else 0
 
 ;; a closure is not in "source" programs but /is/ a MUPL value; it is what functions evaluate to
-(struct closure (env fun) #:transparent) 
+(struct closure (env fun) #:transparent)
+
+(define (make-pair x y)
+  (cons x y))
 
 ;; Problem 1
 
@@ -55,6 +58,7 @@
         [(apair? e) e]
         [(var? e) 
          (envlookup env (var-string e))]
+        [(closure? e) e]
         [(add? e) 
          (let ([v1 (eval-under-env (add-e1 e) env)]
                [v2 (eval-under-env (add-e2 e) env)])
@@ -72,11 +76,22 @@
                    (eval-under-env (ifgreater-e4 e) env))
                (error "MUPL ifgreater used with non-number values in comparison")))]
         [(fun? e)
-         (error "Not implemented.")]
+         (closure env e)]
         [(call? e)
-         (error "Not implemented.")]
+         (let ([e1 (eval-under-env (call-funexp e) env)]
+               [e2 (eval-under-env (call-actual e) env)])
+               (if (closure? e1)
+                   (let* ([f (closure-fun e1)]
+                          [fname (fun-nameopt f)]
+                          [arg (fun-formal f)]
+                          [new-env (if fname (cons (make-pair fname e1) (cons (make-pair arg e2) env)) (cons (make-pair arg e2) env))])
+                     (eval-under-env (fun-body f) new-env))
+                   (error "Called non closure"))
+               )]
         [(mlet? e)
-         (error "Not implemented.")]
+         (let* ([v (eval-under-env (mlet-e e) env)]
+                [new-env (cons (cons (mlet-var e) v) env)])
+              (eval-under-env (mlet-body e) new-env))]
         [(fst? e)
          (let ([pr (eval-under-env (fst-e e) env)])
            (if (apair? pr)
