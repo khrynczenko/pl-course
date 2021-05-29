@@ -55,7 +55,7 @@
 (define (eval-under-env e env)
   (cond [(int? e) e]
         [(aunit? e) e]
-        [(apair? e) e]
+        [(apair? e) (apair (eval-under-env (apair-e1 e) env) (eval-under-env (apair-e2 e) env))]
         [(var? e) 
          (envlookup env (var-string e))]
         [(closure? e) e]
@@ -82,9 +82,12 @@
                [e2 (eval-under-env (call-actual e) env)])
                (if (closure? e1)
                    (let* ([f (closure-fun e1)]
+                          [old-env (closure-env e1)]
                           [fname (fun-nameopt f)]
-                          [arg (fun-formal f)]
-                          [new-env (if fname (cons (make-pair fname e1) (cons (make-pair arg e2) env)) (cons (make-pair arg e2) env))])
+                          [argname (fun-formal f)]
+                          [new-env (if fname
+                                       (cons (make-pair fname e1) (cons (make-pair argname e2) old-env))
+                                       (cons (make-pair argname e2) old-env))])
                      (eval-under-env (fun-body f) new-env))
                    (error "Called non closure"))
                )]
@@ -131,11 +134,18 @@
 
 ;; Problem 4
 
-(define mupl-map "CHANGE")
+(define mupl-map
+  (fun "map" "f"
+   (fun "rec" "list"
+       (ifaunit (var "list")
+                (aunit)
+                (apair
+                 (call (var "f") (fst (var "list")))
+                 (call (var "rec") (snd (var "list"))))))))
 
 (define mupl-mapAddN 
   (mlet "map" mupl-map
-        "CHANGE (notice map is now in MUPL scope)"))
+        (fun #f "i" (call (var "map") (fun #f "x" (add (var "x") (var "i")))))))
 
 ;; Challenge Problem
 
