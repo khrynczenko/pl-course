@@ -1,4 +1,4 @@
-# Showcase of advantages/disatvantages of oop decomposition
+# Showcase of advantages/disadvantages of oop decomposition
 
 class Expr
   def eval
@@ -10,9 +10,7 @@ class MyValue < Expr
     @i = i
   end
 
-  def eval
-    @i
-  end
+  def eval @i end
 end
 
 class MyAdd < Expr

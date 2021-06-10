@@ -1,4 +1,4 @@
--- Showcase of advantages/disatvantages of functional decomposition
+-- Showcase of the advantages/disadvantages of functional decomposition
 
 
 data Expr = Value Int
@@ -11,7 +11,7 @@ evaluate (Value x) = x
 evaluate (Add e1 e2) = evaluate e1 + evaluate e2
 
 -- ADVANTAGE
--- It is super easy to add new operation on a type. In such situation we
+-- It is super easy to add a new operation on a type. In such a situation we
 -- do not affect any existing code and do not need to make any additional
 -- changes.
 
@@ -23,7 +23,7 @@ hasZero (Add e1 e2) = hasZero e1 || hasZero e2
 
 -- DISADVANTAGE
 -- Adding new data, in this case a new variant/data constructor, requires
--- from us to update all operations that work with this type.
+-- from us to update all the operations that work with this type.
 
 data Expr2 = Value2 Int
           | Add2 Expr2 Expr2
